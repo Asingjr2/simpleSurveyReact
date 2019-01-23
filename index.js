@@ -1,42 +1,26 @@
 const express = require('express');
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const mongoose = require('mongoose');
+require('./models/User'); // just requiring ensures code runs.
+require('./services/passport');
+const authRoutes = require('./routes/authRoutes');
 const keys = require('./config/keys');
 
-/** Express will handle http requests with route handlers. */ 
-
-/**
- * Creating strategy instance with config arguments.
- */
 const app = express();
 
-/**
- * Adding in hidden keys for use.
- * Callback url is redirect address when sent from google auth endpoint.
- * Below will be final code for what to do when oauth is succesffully.
+/** Passing address for mongoDB. */
+mongoose.connect(keys.mongoAddress, { useNewUrlParser: true });
+
+/** 
+ * Created arrow function to update routes from other module. * Javascripts also allows 'piping'.
+ * Could do one liner for updating routes as 
+ * require('./routes/authRoutes')(app).
  */
-passport.use(new GoogleStrategy({
-  clientID: keys.googleClientID,
-  clientSecret: keys.googleClientSecret,
-  callbackURL: '/auth/google/callback'
-}, (accessToken) => console.log(accessToken))); 
-
-
-app.get('/', (req, res) => {
-  res.send({
-    hi: 'there'
-  });
-})
-
-
-/** Get method takes initial string and then authentication direction. */
-app.get('/auth/google', passport.authenticate('google', {
-  scope: ['profile', 'email']
-})
-);
-
-/** Call back handled with include gmail secret session code. */
-app.get('/auth/google/callback', passport.authenticate('google'));
+authRoutes(app);
+/** 
+ * Javascripts also allows 'piping'.
+ * Could do one liner for updating routes as 
+ * require('./routes/authRoutes')(app); */
 
 const PORT =  process.env.PORT || 5000;
+
 app.listen(PORT);
