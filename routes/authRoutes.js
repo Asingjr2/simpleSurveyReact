@@ -13,9 +13,16 @@ module.exports = (app) => {
   /** Call back handled with include gmail secret session code. */
   app.get('/auth/google/callback', passport.authenticate('google'));
 
-  app.get('/hey', (req, res) => {
-    res.send({
-      hi: 'friend'
-    });
+  /** Added to check if user is logged in.  Test endpoint. */
+  app.get('/api/current_user', (req, res) => {
+    res.send(req.user.id);
+    console.log('here is our user', req.user)
+  } );
+
+  app.get('/api/logout', (req, res) => {
+    req.logout();
+    console.log('logging out')
+    res.send(req.user);
   })
+
 }
